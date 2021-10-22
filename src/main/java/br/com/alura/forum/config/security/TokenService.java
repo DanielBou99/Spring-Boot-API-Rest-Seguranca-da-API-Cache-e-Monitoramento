@@ -8,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import br.com.alura.forum.modelo.Usuario;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -20,12 +21,11 @@ public class TokenService {
 	@Value("${forum.jwt.secret}")
 	private String secret;
 
+	// Gera o token
 	public String gerarToken(Authentication authentication) {
 		
 		Usuario logado = (Usuario) authentication.getPrincipal();
 		Date hoje = new Date();
-		System.out.println(hoje.getDate());
-		
 		Date dataExpiracao = new Date(hoje.getTime() + Long.parseLong(expiration));
 		
 		return Jwts.builder()
@@ -36,6 +36,20 @@ public class TokenService {
 				.signWith(SignatureAlgorithm.HS256, secret)
 				.compact();
 	}
-	
 
+	// Verifica se o token está cadastrado
+	public boolean isTokenValido(String token) {
+		try {
+			Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	// Extrai o ID do token
+	public Long getIdUsuario(String token) {
+		Claims claims = Jwts.parser().setSigningKey(this.secret).parseClaimsJws(token).getBody();
+		return Long.parseLong(claims.getSubject());
+	}
 }

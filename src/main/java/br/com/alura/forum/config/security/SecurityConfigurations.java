@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import br.com.alura.forum.repository.UsuarioRepository;
 
 @EnableWebSecurity // habilitar o modo de segurança
 @Configuration
@@ -19,6 +22,12 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	
 	@Autowired
 	private AutenticacaoService autenticacaoService;
+	
+	@Autowired
+	private TokenService tokenService;
+	
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 	
 	// metodo para criar o objeto AuthenticationManager utilizado no AutenticacaoController
 	@Override
@@ -43,6 +52,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 		.anyRequest().authenticated()
 		.and().csrf().disable() // Cross Site Requets Forward, desabilitar para o Spring não validar Token
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // não criar session
+		.and().addFilterBefore(new AutenticacaoViaTokenFilter(tokenService, usuarioRepository), UsernamePasswordAuthenticationFilter.class) // Pedir para rodar o filtro antes da autenticação
 		;
 	}
 	
@@ -50,5 +60,9 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 	}
+	
+//	public static void main(String[] args) {
+//		System.out.println(new BCryptPasswordEncoder().encode("guilherme"));
+//	}
 	
 }
