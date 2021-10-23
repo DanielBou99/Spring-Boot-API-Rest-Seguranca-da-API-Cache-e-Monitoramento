@@ -49,6 +49,7 @@ public class SecurityConfigurations extends WebSecurityConfigurerAdapter {
 		.antMatchers(HttpMethod.GET, "/topicos").permitAll()
 		.antMatchers(HttpMethod.GET, "/topicos/*").permitAll()
 		.antMatchers(HttpMethod.POST, "/auth*").permitAll()
+		.antMatchers(HttpMethod.GET, "/actuator/**").permitAll()
 		.anyRequest().authenticated()
 		.and().csrf().disable() // Cross Site Requets Forward, desabilitar para o Spring não validar Token
 		.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // não criar session
